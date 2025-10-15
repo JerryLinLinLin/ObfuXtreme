@@ -149,7 +149,6 @@ class UltimateObfuscator:
 import sys
 import os
 import base64
-import hashlib
 import marshal
 import zlib
 import traceback
@@ -168,7 +167,7 @@ def _decrypt_str(data):
     try:
         cipher = AES.new(_KEY, AES.MODE_CBC, _IV)
         return unpad(cipher.decrypt(data), 16).decode()
-    except:
+    except Exception:
         return ""
 
 def _main():
@@ -181,18 +180,17 @@ def _main():
         decrypted_data = unpad(cipher.decrypt(encrypted_data), 16)
         decompressed_data = zlib.decompress(decrypted_data)
         
-        exec(marshal.loads(decompressed_data), {{
-            **globals(),
-            '__name__': '__main__',
-            '__builtins__': __builtins__,
-            '_decrypt_str': _decrypt_str
-        }})
+        curr_mod = sys.modules[__name__]
+        ns = curr_mod.__dict__
+        ns['_decrypt_str'] = _decrypt_str
+        ns['__spec__'] = None
+        exec(marshal.loads(decompressed_data), ns, ns)
     except Exception as e:
         print("Execution failed:")
         traceback.print_exc()
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ in ("__main__", "__mp_main__"):
     _main()
         """
 
