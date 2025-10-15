@@ -5,10 +5,9 @@ import marshal
 import os
 import random
 import sys
-import traceback
 import zlib
 from Crypto.Cipher import AES
-from Crypto.Util.Padding import pad, unpad
+from Crypto.Util.Padding import pad
 
 class UltimateObfuscator:
     def __init__(self, filename):
